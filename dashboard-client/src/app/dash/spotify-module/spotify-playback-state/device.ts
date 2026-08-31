@@ -1,6 +1,6 @@
 export class Device {
 
-    private id: string;
+    private id: string | null;
 
     private isActive: boolean;
 
@@ -10,17 +10,17 @@ export class Device {
 
     private type: string;
 
-    private volumePercent: number;
+    private volumePercent: number | null;
 
     private supportsVolume: boolean;
 
     constructor(
-        id: string,
+        id: string | null,
         isActive: boolean,
         isPrivateSession: boolean,
         isRestricted: boolean,
         type: string,
-        volumePercent: number,
+        volumePercent: number | null,
         supportsVolume: boolean
     ) {
         this.id = id;
@@ -32,7 +32,7 @@ export class Device {
         this.supportsVolume = supportsVolume;
     }
 
-    public getId(): string {
+    public getId(): string | null {
         return this.id;
     }
 
@@ -52,7 +52,7 @@ export class Device {
         return this.type;
     }
 
-    public getVolumePercent(): number {
+    public getVolumePercent(): number | null {
         return this.volumePercent;
     }
 
@@ -60,7 +60,7 @@ export class Device {
         return this.supportsVolume;
     }
 
-    public setId(id: string) {
+    public setId(id: string | null) {
         this.id = id;
     }
 
@@ -80,7 +80,7 @@ export class Device {
         this.type = type;
     }
 
-    public setVolumePercent(volumePercent: number) {
+    public setVolumePercent(volumePercent: number | null) {
         this.volumePercent = volumePercent;
     }
 

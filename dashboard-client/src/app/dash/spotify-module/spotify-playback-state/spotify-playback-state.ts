@@ -9,22 +9,22 @@ export class SpotifyPlaybackState {
     private device: Device;
     private repeatState: "track" | "context" | "off";
     private shuffleState: boolean;
-    private context: Context;
+    private context: Context | null;
     private timestamp: number;
-    private progressMs: number;
+    private progressMs: number | null;
     private isPlaying: boolean;
-    private item: TrackObject | EpisodeObject;
+    private item: TrackObject | EpisodeObject | null;
     private actions: Actions;
 
     constructor(
         device: Device,
         repeatState: "track" | "context" | "off",
         shuffleState: boolean,
-        context: Context,
+        context: Context | null,
         timestamp: number,
-        progressMs: number,
+        progressMs: number | null,
         isPlaying: boolean,
-        item: TrackObject | EpisodeObject,
+        item: TrackObject | EpisodeObject | null,
         actions: Actions
     ) {
         this.device = device;
@@ -62,11 +62,11 @@ export class SpotifyPlaybackState {
         this.shuffleState = shuffleState;
     }
 
-    public getContext(): Context {
+    public getContext(): Context | null {
         return this.context;
     }
 
-    public setContext(context: Context): void {
+    public setContext(context: Context | null): void {
         this.context = context;
     }
 
@@ -78,11 +78,11 @@ export class SpotifyPlaybackState {
         this.timestamp = timestamp;
     }
 
-    public getProgressMs(): number {
+    public getProgressMs(): number | null {
         return this.progressMs;
     }
 
-    public setProgressMs(progressMs: number): void {
+    public setProgressMs(progressMs: number | null): void {
         this.progressMs = progressMs;
     }
 
@@ -94,11 +94,11 @@ export class SpotifyPlaybackState {
         this.isPlaying = isPlaying;
     }
 
-    public getItem(): TrackObject | EpisodeObject {
+    public getItem(): TrackObject | EpisodeObject | null {
         return this.item;
     }
 
-    public setItem(item: TrackObject | EpisodeObject): void {
+    public setItem(item: TrackObject | EpisodeObject | null): void {
         this.item = item;
     }
 

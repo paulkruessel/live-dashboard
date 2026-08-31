@@ -2,14 +2,14 @@ export class Image {
     
     private url: string;
 
-    private height: number;
+    private height: number | null;
 
-    private width: number;
+    private width: number | null;
 
     public constructor(
         url: string,
-        height: number,
-        width: number
+        height: number | null,
+        width: number | null
     ) {
         this.url = url;
         this.height = height;
@@ -20,11 +20,11 @@ export class Image {
         return this.url;
     }
 
-    public getHeight(): number {
+    public getHeight(): number | null {
         return this.height;
     }
 
-    public getWidth(): number {
+    public getWidth(): number | null {
         return this.width;
     }
 
@@ -32,11 +32,11 @@ export class Image {
         this.url = url;
     }
 
-    public setHeight(height: number) {
+    public setHeight(height: number | null) {
         this.height = height;
     }
 
-    public setWidth(width: number) {
+    public setWidth(width: number | null) {
         this.width = width;
     }
 }

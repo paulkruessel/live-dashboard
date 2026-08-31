@@ -207,7 +207,7 @@ export class SpotifyService {
 
             data.timestamp,
 
-            data.progress_ms,
+            data.progress_ms ?? null,
 
             data.is_playing,
 
@@ -248,12 +248,10 @@ export class SpotifyService {
     
     private mapItem(
         data: any
-    ): TrackObject | EpisodeObject {
+    ): TrackObject | EpisodeObject | null {
 
         if (!data) {
-            throw new Error(
-                "Spotify Playback enthält kein Item."
-            );
+            return null;
         }
 
         if (data.type === "track") {
@@ -300,15 +298,17 @@ export class SpotifyService {
 
             data.id,
 
-            data.is_playable ?? true,
+            data.is_playable ?? null,
 
-            data.linked_from ?? {},
+            data.linked_from ?? null,
 
             data.name,
 
             data.popularity,
 
-            data.preview_url,
+            data.preview_url ?? null,
+
+            this.mapRestrictions(data.restrictions),
 
             data.track_number,
 
@@ -326,7 +326,7 @@ export class SpotifyService {
 
         return new EpisodeObject(
 
-            data.audio_preview_url,
+            data.audio_preview_url ?? null,
 
             data.description,
 
@@ -353,7 +353,7 @@ export class SpotifyService {
 
             data.is_playable,
 
-            data.language,
+            data.language ?? null,
 
             data.languages,
 
@@ -383,7 +383,7 @@ export class SpotifyService {
     private mapDevice(data: any): Device {
 
         return new Device(
-            data.id,
+            data.id ?? null,
 
             data.is_active,
 
@@ -393,13 +393,17 @@ export class SpotifyService {
 
             data.type,
 
-            data.volume_percent,
+            data.volume_percent ?? null,
 
             data.supports_volume
         )
     }
 
-    private mapContext(data: any): Context {
+    private mapContext(data: any): Context | null {
+        if (!data) {
+            return null;
+        }
+
         return new Context(
             data.type,
 
@@ -459,9 +463,9 @@ export class SpotifyService {
 
     private mapExternalIds(data: any): any {
         return new ExternalIds(
-            data.isrc,
-            data.ean,
-            data.upc
+            data?.isrc ?? null,
+            data?.ean ?? null,
+            data?.upc ?? null
         );
     }
 
@@ -475,13 +479,17 @@ export class SpotifyService {
         return data.map(i => {
             return new Image(
                 i.url,
-                i.width,
-                i.height
+                i.height ?? null,
+                i.width ?? null
             )
         })
     }
 
-    private mapResumePoint(data: any): ResumePoint {
+    private mapResumePoint(data: any): ResumePoint | null {
+        if (!data) {
+            return null;
+        }
+
         return new ResumePoint(
             data.fully_played,
             data.resume_position_ms
@@ -511,7 +519,7 @@ export class SpotifyService {
             this.mapExternalUrls(data.external_urls),
             data.href,
             this.mapImage(data.images),
-            data.is_externally_hosted,
+            data.is_externally_hosted ?? null,
             data.languages,
             data.media_type,
             data.name,

@@ -1,6 +1,7 @@
 import { Album } from "./album";
 import { ExternalIds } from "./external-ids";
 import { ExternalUrls } from "./external-urls";
+import { Restrictions } from "./restrictions";
 import { SimplifiedArtist } from "./SimplifiedArtist";
 
 export class TrackObject {
@@ -14,11 +15,12 @@ export class TrackObject {
     private externalUrls: ExternalUrls;
     private href: string;
     private id: string;
-    private isPlayable: boolean;
-    private linkedFrom: {};
+    private isPlayable: boolean | null;
+    private linkedFrom: Record<string, unknown> | null;
     private name: string;
     private popularity: number;
-    private previewUrl: string;
+    private previewUrl: string | null;
+    private restrictions: Restrictions | null;
     private trackNumber: number;
     private type: string;
     private uri: string;
@@ -34,11 +36,12 @@ export class TrackObject {
         externalUrls: ExternalUrls,
         href: string,
         id: string,
-        isPlayable: boolean,
-        linkedFrom: {},
+        isPlayable: boolean | null,
+        linkedFrom: Record<string, unknown> | null,
         name: string,
         popularity: number,
-        previewUrl: string,
+        previewUrl: string | null,
+        restrictions: Restrictions | null,
         trackNumber: number,
         type: string,
         uri: string,
@@ -58,6 +61,7 @@ export class TrackObject {
         this.name = name;
         this.popularity = popularity;
         this.previewUrl = previewUrl;
+        this.restrictions = restrictions;
         this.trackNumber = trackNumber;
         this.type = type;
         this.uri = uri;
@@ -136,19 +140,19 @@ export class TrackObject {
         this.id = id;
     }
 
-    public getIsPlayable(): boolean {
+    public getIsPlayable(): boolean | null {
         return this.isPlayable;
     }
 
-    public setIsPlayable(isPlayable: boolean): void {
+    public setIsPlayable(isPlayable: boolean | null): void {
         this.isPlayable = isPlayable;
     }
 
-    public getLinkedFrom(): {} {
+    public getLinkedFrom(): Record<string, unknown> | null {
         return this.linkedFrom;
     }
 
-    public setLinkedFrom(linkedFrom: {}): void {
+    public setLinkedFrom(linkedFrom: Record<string, unknown> | null): void {
         this.linkedFrom = linkedFrom;
     }
 
@@ -168,12 +172,20 @@ export class TrackObject {
         this.popularity = popularity;
     }
 
-    public getPreviewUrl(): string {
+    public getPreviewUrl(): string | null {
         return this.previewUrl;
     }
 
-    public setPreviewUrl(previewUrl: string): void {
+    public setPreviewUrl(previewUrl: string | null): void {
         this.previewUrl = previewUrl;
+    }
+
+    public getRestrictions(): Restrictions | null {
+        return this.restrictions;
+    }
+
+    public setRestrictions(restrictions: Restrictions | null): void {
+        this.restrictions = restrictions;
     }
 
     public getTrackNumber(): number {

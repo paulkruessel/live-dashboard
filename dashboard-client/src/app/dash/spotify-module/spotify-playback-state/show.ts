@@ -12,7 +12,7 @@ export class Show {
     private externalUrls: ExternalUrls;
     private href: string;
     private images: Image[];
-    private isExternallyHosted: boolean;
+    private isExternallyHosted: boolean | null;
     private languages: string[];
     private mediaType: string;
     private name: string;
@@ -30,7 +30,7 @@ export class Show {
         externalUrls: ExternalUrls,
         href: string,
         images: Image[],
-        isExternallyHosted: boolean,
+        isExternallyHosted: boolean | null,
         languages: string[],
         mediaType: string,
         name: string,
@@ -121,11 +121,11 @@ export class Show {
         this.images = images;
     }
 
-    public getIsExternallyHosted(): boolean {
+    public getIsExternallyHosted(): boolean | null {
         return this.isExternallyHosted;
     }
 
-    public setIsExternallyHosted(isExternallyHosted: boolean): void {
+    public setIsExternallyHosted(isExternallyHosted: boolean | null): void {
         this.isExternallyHosted = isExternallyHosted;
     }
 

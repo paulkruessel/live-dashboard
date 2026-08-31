@@ -6,7 +6,7 @@ import { Show } from "./show";
 
 export class EpisodeObject {
 
-    private audioPreviewUrl: string;
+    private audioPreviewUrl: string | null;
     private description: string;
     private htmlDescription: string;
     private durationMs: number;
@@ -17,19 +17,19 @@ export class EpisodeObject {
     private images: Image[];
     private isExternallyHosted: boolean;
     private isPlayable: boolean;
-    private language: string;
+    private language: string | null;
     private languages: string[];
     private name: string;
     private releaseDate: string;
     private releaseDatePrecision: "year" | "month" | "day";
-    private resumePoint: ResumePoint;
+    private resumePoint: ResumePoint | null;
     private type: "episode";
     private uri: string;
     private restrictions: Restrictions | null;
     private show: Show;
 
     constructor(
-        audioPreviewUrl: string,
+        audioPreviewUrl: string | null,
         description: string,
         htmlDescription: string,
         durationMs: number,
@@ -40,12 +40,12 @@ export class EpisodeObject {
         images: Image[],
         isExternallyHosted: boolean,
         isPlayable: boolean,
-        language: string,
+        language: string | null,
         languages: string[],
         name: string,
         releaseDate: string,
         releaseDatePrecision: "year" | "month" | "day",
-        resumePoint: ResumePoint,
+        resumePoint: ResumePoint | null,
         type: "episode",
         uri: string,
         restrictions: Restrictions | null,
@@ -74,11 +74,11 @@ export class EpisodeObject {
         this.show = show;
     }
 
-    public getAudioPreviewUrl(): string {
+    public getAudioPreviewUrl(): string | null {
         return this.audioPreviewUrl;
     }
 
-    public setAudioPreviewUrl(audioPreviewUrl: string): void {
+    public setAudioPreviewUrl(audioPreviewUrl: string | null): void {
         this.audioPreviewUrl = audioPreviewUrl;
     }
 
@@ -162,11 +162,11 @@ export class EpisodeObject {
         this.isPlayable = isPlayable;
     }
 
-    public getLanguage(): string {
+    public getLanguage(): string | null {
         return this.language;
     }
 
-    public setLanguage(language: string): void {
+    public setLanguage(language: string | null): void {
         this.language = language;
     }
 
@@ -204,11 +204,11 @@ export class EpisodeObject {
         this.releaseDatePrecision = releaseDatePrecision;
     }
 
-    public getResumePoint(): ResumePoint {
+    public getResumePoint(): ResumePoint | null {
         return this.resumePoint;
     }
 
-    public setResumePoint(resumePoint: ResumePoint): void {
+    public setResumePoint(resumePoint: ResumePoint | null): void {
         this.resumePoint = resumePoint;
     }
 
