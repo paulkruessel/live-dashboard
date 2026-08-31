@@ -1,4 +1,4 @@
-import { HttpClient, HttpErrorResponse, HttpHeaders } from "@angular/common/http";
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from "@angular/common/http";
 import { computed, effect, Injectable, signal } from "@angular/core";
 import { EMPTY, interval, Observable, catchError, map, startWith, Subscription, switchMap, finalize } from "rxjs";
 import { SpotifyAuthService } from "./auth/auth-service";
@@ -25,27 +25,35 @@ import { CurrentlyPlayingType } from "./spotify-types";
 export class SpotifyService {
     private readonly apiUrl = "https://api.spotify.com/v1/me/player";
     private readonly _playbackState = signal<SpotifyPlaybackState | null>(null);
+    private readonly _localProgressMs = signal(0);
     private readonly _loading = signal(false);
     private readonly _error = signal<string | null>(null);
     public readonly playbackState = this._playbackState.asReadonly();
     public readonly loading = this._loading.asReadonly();
     public readonly error = this._error.asReadonly();
     public readonly isPlaying = computed(() => this._playbackState()?.getIsPlaying() ?? false);
-    public readonly progressMs = computed(() => this._playbackState()?.getProgressMs() ?? 0);
+    public readonly localProgressMs = computed(() => this._localProgressMs());
+    public readonly progressMs = this.localProgressMs;
     public readonly currentItem = computed(() => this._playbackState()?.getItem() ?? null);
     private playbackSubscription?: Subscription;
+    private localProgressSubscription?: Subscription;
 
     constructor(private readonly http: HttpClient, private readonly auth: SpotifyAuthService) {
         effect(() => {
             if (this.auth.isAuthenticated()) this.startPolling();
-            else { this.stopPolling(); this._playbackState.set(null); }
+            else { this.stopPolling(); this.stopLocalProgressSimulation(); this._playbackState.set(null); this._localProgressMs.set(0); }
         });
     }
 
     public loadPlaybackState(): void { this.refreshPlaybackState(); }
 
     public refreshPlaybackState(): void {
-        this.fetchPlaybackState$().subscribe(data => this._playbackState.set(data));
+        this.stopPolling();
+        this.fetchPlaybackState$().subscribe(data => {
+            this._playbackState.set(data);
+            this.syncLocalProgressWithPlaybackState(data);
+        });
+        this.startPolling(3000)
     }
 
     private fetchPlaybackState$(): Observable<SpotifyPlaybackState | null> {
@@ -69,11 +77,247 @@ export class SpotifyService {
 
     public startPolling(intervalMs = 3000): void {
         if (this.playbackSubscription) return;
-        this.playbackSubscription = interval(intervalMs).pipe(startWith(0), switchMap(() => this.fetchPlaybackState$())).subscribe(data => this._playbackState.set(data));
+        this.playbackSubscription = interval(intervalMs).pipe(startWith(0), switchMap(() => this.fetchPlaybackState$())).subscribe(data => {
+            this._playbackState.set(data);
+            this.syncLocalProgressWithPlaybackState(data);
+        });
     }
 
     public stopPolling(): void { this.playbackSubscription?.unsubscribe(); this.playbackSubscription = undefined; }
 
+    private syncLocalProgressWithPlaybackState(data: SpotifyPlaybackState | null): void {
+        this.stopLocalProgressSimulation();
+
+        if (!data || !data.getItem()) {
+            this._localProgressMs.set(0);
+            return;
+        }
+
+        const songDurationMs = data.getItem()!.getDurationMs();
+        const actualProgressMs = Math.min(data.getProgressMs() ?? 0, songDurationMs);
+        this._localProgressMs.set(actualProgressMs);
+
+        if (!data.getIsPlaying() || songDurationMs <= 0) return;
+
+        this.localProgressSubscription = interval(100).subscribe(() => {
+            const latestPlaybackState = this._playbackState();
+            if (!latestPlaybackState?.getIsPlaying()) {
+                const pausedProgress = Math.min(latestPlaybackState?.getProgressMs() ?? this._localProgressMs(), songDurationMs);
+                this._localProgressMs.set(pausedProgress);
+                this.stopLocalProgressSimulation();
+                return;
+            }
+
+            const nextProgress = Math.min(this._localProgressMs() + 100, songDurationMs);
+            this._localProgressMs.set(nextProgress);
+        });
+    }
+
+    private stopLocalProgressSimulation(): void {
+        this.localProgressSubscription?.unsubscribe();
+        this.localProgressSubscription = undefined;
+    }
+
+    public pausePlayback(): void {
+        const token = this.auth.accessToken();
+
+        if (!token) {
+            this._error.set("Kein Spotify Access Token vorhanden.");
+            return;
+        }
+
+        this._loading.set(true);
+
+        this.http.put(
+            `${this.apiUrl}/pause`,
+            null,
+            {
+                headers: new HttpHeaders({
+                    Authorization: `Bearer ${token}`
+                }),
+                responseType: "text"
+            }
+        ).pipe(
+            catchError((error: HttpErrorResponse) => {
+                if (error.status === 401) {
+                    this.auth.refreshAccessToken();
+                }
+
+                this._error.set(
+                    "Spotify Wiedergabe konnte nicht pausiert werden."
+                );
+
+                console.error("Spotify Pause Fehler:", error);
+                return EMPTY;
+            }),
+            finalize(() => this._loading.set(false))
+        ).subscribe(() => {
+            this._error.set(null);
+
+            this.stopLocalProgressSimulation();
+            this.refreshPlaybackState();
+        });
+    }
+
+    public startPlayback(): void {
+        const token = this.auth.accessToken();
+
+        if (!token) {
+            this._error.set("Kein Spotify Access Token vorhanden");
+            return;
+        }
+
+        this._loading.set(true);
+
+        this.http.put(
+            `${this.apiUrl}/play`,
+            null,
+            {
+                headers: new HttpHeaders({
+                    Authorization: `Bearer ${token}`
+                }),
+                responseType: "text"
+            }
+        ).pipe(
+            catchError((error: HttpErrorResponse) => {
+                if (error.status === 401) {
+                    this.auth.refreshAccessToken();
+                }
+
+                this._error.set(
+                    "Spotify Wiedergabe konnte nicht abgespielt werden."
+                );
+
+                console.error("Spotify Play Fehler:", error);
+                return EMPTY;
+            }),
+            finalize(() => this._loading.set(false))
+        ).subscribe(() => {
+
+            this.stopLocalProgressSimulation();
+            this.refreshPlaybackState();
+        });
+    }
+
+    public skipSong(): void {
+        const token = this.auth.accessToken();
+
+        if (!token) {
+            this._error.set("Kein Spotify Access Token vorhanden");
+            return;
+        }
+
+        this._loading.set(true);
+        
+        this.http.post(
+            `${this.apiUrl}/next`,
+            null,
+            {
+                headers: new HttpHeaders({
+                    Authorization: `Bearer ${token}`
+                }),
+                responseType: "text"
+            }
+        ).pipe(
+            catchError((error: HttpErrorResponse) => {
+                if (error.status === 401) {
+                    this.auth.refreshAccessToken();
+                }
+
+                this._error.set(
+                    "Spotify Song konnte nicht geskippt werden."
+                );
+
+                console.error("Spotify Skip Fehler:", error);
+                return EMPTY;
+            }),
+            finalize(() => this._loading.set(false))
+        ).subscribe(() => {
+            this.stopLocalProgressSimulation();
+            this.refreshPlaybackState();
+        });
+    }
+
+    public prevSong(): void {
+        const token = this.auth.accessToken();
+
+        if (!token) {
+            this._error.set("Kein Spotify Access Token vorhanden");
+            return;
+        }
+
+        this._loading.set(true);
+        
+        this.http.post(
+            `${this.apiUrl}/previous`,
+            null,
+            {
+                headers: new HttpHeaders({
+                    Authorization: `Bearer ${token}`
+                }),
+                responseType: "text"
+            }
+        ).pipe(
+            catchError((error: HttpErrorResponse) => {
+                if (error.status === 401) {
+                    this.auth.refreshAccessToken();
+                }
+
+                this._error.set(
+                    "Spotify Song konnte nicht previous werden."
+                );
+
+                console.error("Spotify previous Fehler:", error);
+                return EMPTY;
+            }),
+            finalize(() => this._loading.set(false))
+        ).subscribe(() => {
+            this.stopLocalProgressSimulation();
+            this.refreshPlaybackState();
+        });
+    }
+
+    public seekPos(positionMs: number): void {
+        const token = this.auth.accessToken();
+
+        if (!token) {
+            this._error.set("Kein Spotify Access Token vorhanden");
+            return;
+        }
+
+        this._loading.set(true);
+        
+        this.http.put(
+            `${this.apiUrl}/seek?position_ms=${positionMs}`,
+            null,
+            {
+                headers: new HttpHeaders({
+                    Authorization: `Bearer ${token}`
+                }),
+                responseType: "text"
+            }
+        ).pipe(
+            catchError((error: HttpErrorResponse) => {
+                if (error.status === 401) {
+                    this.auth.refreshAccessToken();
+                }
+
+                this._error.set(
+                    "Spotify Song konnte nicht geseekt werden."
+                );
+
+                console.error("Spotify seek Fehler:", error);
+                return EMPTY;
+            }),
+            finalize(() => this._loading.set(false))
+        ).subscribe(() => {
+            this.stopLocalProgressSimulation();
+            this.refreshPlaybackState();
+        });
+    }
+    
+
+    //#region Mapper
     private mapPlaybackState(data: SpotifyPlaybackStateDto): SpotifyPlaybackState {
         return new SpotifyPlaybackState(this.mapDevice(data.device), data.repeat_state, data.shuffle_state, this.mapContext(data.context), data.timestamp, data.progress_ms ?? null, data.is_playing, this.mapItem(data.item), this.mapCurrentlyPlayingType(data.currently_playing_type), this.mapActions(data.actions));
     }
@@ -136,4 +380,6 @@ export class SpotifyService {
         if (!Array.isArray(data)) return [];
         return data.map(copyright => new Copyright(copyright.text, copyright.type));
     }
+
+    //#endregion
 }
