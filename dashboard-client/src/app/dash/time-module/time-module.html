@@ -1,0 +1,8 @@
+<div>
+    <span class="tabular-nums">{{ currentDate().getHours().toString().padStart(2, '0') }}</span>
+    <span class="inline-block w-[1ch] text-center" [class.opacity-0]="!dividerVisible()">:</span>
+    <span class="tabular-nums">{{ currentDate().getMinutes().toString().padStart(2, '0') }}</span>
+</div>
+<div>
+    {{ currentDateFormatted() }}
+</div>
