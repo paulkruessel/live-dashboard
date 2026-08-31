@@ -1,1 +1,5 @@
-<app-login />
+@if(!auth.isAuthenticated()) {
+    <app-login />
+} @else {
+    Logged in to Spotify!
+}
