@@ -1,28 +1,29 @@
 import { ExternalUrls } from "./external-urls";
+import { ContextType } from "../spotify-types";
 
 export class Context {
 
-    private type: string;
+    private type: ContextType;
 
     private href: string;
 
-    private exportUrls: ExternalUrls;
+    private externalUrls: ExternalUrls;
 
     private uri: string;
 
     public constructor(
-        type: string,
+        type: ContextType,
         href: string,
-        exportUrls: ExternalUrls,
+        externalUrls: ExternalUrls,
         uri: string
     ) {
         this.type = type;
         this.href = href;
-        this.exportUrls = exportUrls;
+        this.externalUrls = externalUrls;
         this.uri = uri;
     }
 
-    public getType(): string {
+    public getType(): ContextType {
         return this.type;
     }
 
@@ -30,15 +31,15 @@ export class Context {
         return this.href;
     }
 
-    public getExportUrls(): ExternalUrls {
-        return this.exportUrls;
+    public getExternalUrls(): ExternalUrls {
+        return this.externalUrls;
     }
 
     public getUri(): string {
         return this.uri;
     }
 
-    public setType(type: string) {
+    public setType(type: ContextType): void {
         this.type = type;
     }
 
@@ -46,8 +47,8 @@ export class Context {
         this.href = href;
     }
 
-    public setExportUrls(exportUrls: ExternalUrls) {
-        this.exportUrls = exportUrls;
+    public setExternalUrls(externalUrls: ExternalUrls): void {
+        this.externalUrls = externalUrls;
     }
 
     public setUri(uri: string) {

@@ -1,38 +1,13 @@
 import { Component } from "@angular/core";
 import { SpotifyAuthService } from "../auth/auth-service";
+import { ButtonModule } from "@openng/optimus-ui/button";
 
 
 @Component({
     selector: "app-login",
     standalone: true,
-
-    template: `
-        @if (!auth.isAuthenticated()) {
-
-            <button (click)="login()">
-                Mit Spotify anmelden
-            </button>
-
-        } @else {
-
-            <p>
-                Mit Spotify verbunden
-            </p>
-
-            <button (click)="logout()">
-                Abmelden
-            </button>
-
-        }
-
-        @if (auth.error()) {
-
-            <p>
-                {{ auth.error() }}
-            </p>
-
-        }
-    `
+    templateUrl: "./login.html",
+    imports: [ButtonModule]
 })
 export class LoginComponent {
 

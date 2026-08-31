@@ -1,6 +1,7 @@
 export class Device {
 
     private id: string | null;
+    private name: string;
 
     private isActive: boolean;
 
@@ -16,6 +17,7 @@ export class Device {
 
     constructor(
         id: string | null,
+        name: string,
         isActive: boolean,
         isPrivateSession: boolean,
         isRestricted: boolean,
@@ -24,6 +26,7 @@ export class Device {
         supportsVolume: boolean
     ) {
         this.id = id;
+        this.name = name;
         this.isActive = isActive;
         this.isPrivateSession = isPrivateSession;
         this.isRestricted = isRestricted;
@@ -35,6 +38,9 @@ export class Device {
     public getId(): string | null {
         return this.id;
     }
+
+    public getName(): string { return this.name; }
+    public setName(name: string): void { this.name = name; }
 
     public getIsActive(): boolean {
         return this.isActive;

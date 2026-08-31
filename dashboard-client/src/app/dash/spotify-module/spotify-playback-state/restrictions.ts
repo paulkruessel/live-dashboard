@@ -1,16 +1,18 @@
+import { RestrictionReason } from "../spotify-types";
+
 export class Restrictions {
     
-    private reason: string;
+    private reason: RestrictionReason;
 
-    public constructor(reason: string) {
+    public constructor(reason: RestrictionReason) {
         this.reason = reason;
     }
 
-    public getReason(): string {
+    public getReason(): RestrictionReason {
         return this.reason;
     }
 
-    public setReason(reason: string) {
+    public setReason(reason: RestrictionReason): void {
         this.reason = reason;
     }
 }

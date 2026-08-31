@@ -1,6 +1,7 @@
 import { Copyright } from "./copyrights";
 import { ExternalUrls } from "./external-urls";
 import { Image } from "./image";
+import { ShowObjectType } from "../spotify-types";
 
 export class Show {
 
@@ -11,13 +12,14 @@ export class Show {
     private explicit: boolean;
     private externalUrls: ExternalUrls;
     private href: string;
+    private id: string;
     private images: Image[];
     private isExternallyHosted: boolean | null;
     private languages: string[];
     private mediaType: string;
     private name: string;
     private publisher: string;
-    private type: string;
+    private type: ShowObjectType;
     private uri: string;
     private totalEpisodes: number;
 
@@ -29,13 +31,14 @@ export class Show {
         explicit: boolean,
         externalUrls: ExternalUrls,
         href: string,
+        id: string,
         images: Image[],
         isExternallyHosted: boolean | null,
         languages: string[],
         mediaType: string,
         name: string,
         publisher: string,
-        type: string,
+        type: ShowObjectType,
         uri: string,
         totalEpisodes: number
     ) {
@@ -46,6 +49,7 @@ export class Show {
         this.explicit = explicit;
         this.externalUrls = externalUrls;
         this.href = href;
+        this.id = id;
         this.images = images;
         this.isExternallyHosted = isExternallyHosted;
         this.languages = languages;
@@ -109,6 +113,10 @@ export class Show {
         return this.href;
     }
 
+    public getId(): string { return this.id; }
+
+    public setId(id: string): void { this.id = id; }
+
     public setHref(href: string): void {
         this.href = href;
     }
@@ -161,11 +169,11 @@ export class Show {
         this.publisher = publisher;
     }
 
-    public getType(): string {
+    public getType(): ShowObjectType {
         return this.type;
     }
 
-    public setType(type: string): void {
+    public setType(type: ShowObjectType): void {
         this.type = type;
     }
 

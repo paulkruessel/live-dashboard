@@ -1,0 +1,12 @@
+export type RepeatState = "off" | "track" | "context";
+export type CurrentlyPlayingType = "track" | "episode" | "ad" | "unknown";
+export type AlbumType = "album" | "single" | "compilation";
+export type ReleaseDatePrecision = "year" | "month" | "day";
+export type AlbumObjectType = "album";
+export type ArtistObjectType = "artist";
+export type TrackObjectType = "track";
+export type EpisodeObjectType = "episode";
+export type ShowObjectType = "show";
+export type CopyrightType = "C" | "P";
+export type RestrictionReason = "market" | "product" | "explicit" | (string & {});
+export type ContextType = "artist" | "playlist" | "album" | "show" | (string & {});

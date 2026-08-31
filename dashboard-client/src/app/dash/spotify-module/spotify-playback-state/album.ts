@@ -1,11 +1,12 @@
 import { ExternalUrls } from "./external-urls";
 import { Image } from "./image";
 import { Restrictions } from "./restrictions";
-import { SimplifiedArtist } from "./SimplifiedArtist";
+import { SimplifiedArtist } from "./simplified-artist";
+import { AlbumType, ReleaseDatePrecision, AlbumObjectType } from "../spotify-types";
 
 export class Album {
 
-    private albumType: string;
+    private albumType: AlbumType;
     private totalTracks: number;
     private availableMarkets: string[];
     private externalUrls: ExternalUrls;
@@ -14,14 +15,14 @@ export class Album {
     private images: Image[];
     private name: string;
     private releaseDate: string;
-    private releaseDatePrecision: string;
+    private releaseDatePrecision: ReleaseDatePrecision;
     private restrictions: Restrictions | null;
-    private type: string;
+    private type: AlbumObjectType;
     private uri: string;
     private artists: SimplifiedArtist[];
 
     constructor(
-        albumType: string,
+        albumType: AlbumType,
         totalTracks: number,
         availableMarkets: string[],
         externalUrls: ExternalUrls,
@@ -30,9 +31,9 @@ export class Album {
         images: Image[],
         name: string,
         releaseDate: string,
-        releaseDatePrecision: string,
+        releaseDatePrecision: ReleaseDatePrecision,
         restrictions: Restrictions | null,
-        type: string,
+        type: AlbumObjectType,
         uri: string,
         artists: SimplifiedArtist[]
     ) {
@@ -52,11 +53,11 @@ export class Album {
         this.artists = artists;
     }
 
-    public getAlbumType(): string {
+    public getAlbumType(): AlbumType {
         return this.albumType;
     }
 
-    public setAlbumType(albumType: string): void {
+    public setAlbumType(albumType: AlbumType): void {
         this.albumType = albumType;
     }
 
@@ -124,11 +125,11 @@ export class Album {
         this.releaseDate = releaseDate;
     }
 
-    public getReleaseDatePrecision(): string {
+    public getReleaseDatePrecision(): ReleaseDatePrecision {
         return this.releaseDatePrecision;
     }
 
-    public setReleaseDatePrecision(releaseDatePrecision: string): void {
+    public setReleaseDatePrecision(releaseDatePrecision: ReleaseDatePrecision): void {
         this.releaseDatePrecision = releaseDatePrecision;
     }
 
@@ -140,11 +141,11 @@ export class Album {
         this.restrictions = restrictions;
     }
 
-    public getType(): string {
+    public getType(): AlbumObjectType {
         return this.type;
     }
 
-    public setType(type: string): void {
+    public setType(type: AlbumObjectType): void {
         this.type = type;
     }
 

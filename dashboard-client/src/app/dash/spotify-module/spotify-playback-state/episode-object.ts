@@ -3,6 +3,7 @@ import { Image } from "./image";
 import { Restrictions } from "./restrictions";
 import { ResumePoint } from "./resume-point";
 import { Show } from "./show";
+import { EpisodeObjectType, ReleaseDatePrecision } from "../spotify-types";
 
 export class EpisodeObject {
 
@@ -15,13 +16,13 @@ export class EpisodeObject {
     private href: string;
     private id: string;
     private images: Image[];
-    private isExternallyHosted: boolean;
+    private isExternallyHosted: boolean | null;
     private isPlayable: boolean;
     private language: string | null;
     private languages: string[];
     private name: string;
     private releaseDate: string;
-    private releaseDatePrecision: "year" | "month" | "day";
+    private releaseDatePrecision: ReleaseDatePrecision;
     private resumePoint: ResumePoint | null;
     private type: "episode";
     private uri: string;
@@ -38,15 +39,15 @@ export class EpisodeObject {
         href: string,
         id: string,
         images: Image[],
-        isExternallyHosted: boolean,
+        isExternallyHosted: boolean | null,
         isPlayable: boolean,
         language: string | null,
         languages: string[],
         name: string,
         releaseDate: string,
-        releaseDatePrecision: "year" | "month" | "day",
+        releaseDatePrecision: ReleaseDatePrecision,
         resumePoint: ResumePoint | null,
-        type: "episode",
+        type: EpisodeObjectType,
         uri: string,
         restrictions: Restrictions | null,
         show: Show
@@ -146,11 +147,11 @@ export class EpisodeObject {
         this.images = images;
     }
 
-    public getIsExternallyHosted(): boolean {
+    public getIsExternallyHosted(): boolean | null {
         return this.isExternallyHosted;
     }
 
-    public setIsExternallyHosted(isExternallyHosted: boolean): void {
+    public setIsExternallyHosted(isExternallyHosted: boolean | null): void {
         this.isExternallyHosted = isExternallyHosted;
     }
 
@@ -194,12 +195,12 @@ export class EpisodeObject {
         this.releaseDate = releaseDate;
     }
 
-    public getReleaseDatePrecision(): "year" | "month" | "day" {
+    public getReleaseDatePrecision(): ReleaseDatePrecision {
         return this.releaseDatePrecision;
     }
 
     public setReleaseDatePrecision(
-        releaseDatePrecision: "year" | "month" | "day"
+        releaseDatePrecision: ReleaseDatePrecision
     ): void {
         this.releaseDatePrecision = releaseDatePrecision;
     }
@@ -212,11 +213,11 @@ export class EpisodeObject {
         this.resumePoint = resumePoint;
     }
 
-    public getType(): "episode" {
+    public getType(): EpisodeObjectType {
         return this.type;
     }
 
-    public setType(type: "episode"): void {
+    public setType(type: EpisodeObjectType): void {
         this.type = type;
     }
 

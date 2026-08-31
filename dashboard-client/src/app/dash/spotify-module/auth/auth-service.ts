@@ -20,8 +20,7 @@ import {
     Subscription,
     timer
 } from "rxjs";
-
-import { environment } from "./enviromnent";
+import { environment } from "./environment";
 
 
 interface SpotifyTokenResponse {
@@ -75,11 +74,8 @@ export class SpotifyAuthService implements OnDestroy {
         // Play / Pause / Skip / etc.
         "user-modify-playback-state",
 
-        // Aktuell abgespielten Track lesen
-        "user-read-currently-playing",
-
-        // Web Playback SDK
-        "streaming"
+        // Position für Episode.resume_point lesen
+        "user-read-playback-position"
     ];
 
 
@@ -124,6 +120,12 @@ export class SpotifyAuthService implements OnDestroy {
 
     private readonly _error =
         signal<string | null>(null);
+
+    private readonly _authorizing =
+        signal<boolean>(false);
+
+    public readonly authorizing =
+        this._authorizing.asReadonly();
 
 
     // =========================================================
@@ -186,70 +188,74 @@ export class SpotifyAuthService implements OnDestroy {
 
     public async login(): Promise<void> {
 
+        if (this._authorizing()) {
+            return;
+        }
+
+        if (window.location.origin !== new URL(this.redirectUri).origin) {
+            this._error.set("Spotify-Login muss über http://127.0.0.1:4200 gestartet werden.");
+            return;
+        }
+
+        this._authorizing.set(true);
         this._error.set(null);
 
-        /*
-         * PKCE Code Verifier
-         */
-        const codeVerifier =
-            this.generateRandomString(64);
+        try {
 
-        /*
-         * Daraus SHA-256 Challenge erzeugen
-         */
-        const codeChallenge =
-            await this.generateCodeChallenge(
+            const codeVerifier =
+                this.generateRandomString(64);
+
+            const codeChallenge =
+                await this.generateCodeChallenge(
+                    codeVerifier
+                );
+
+            const state =
+                this.generateRandomString(32);
+
+            sessionStorage.setItem(
+                this.CODE_VERIFIER_KEY,
                 codeVerifier
             );
 
-        /*
-         * CSRF-Schutz
-         */
-        const state =
-            this.generateRandomString(32);
+            sessionStorage.setItem(
+                this.STATE_KEY,
+                state
+            );
 
+            console.log(
+                "[Spotify OAuth] State gespeichert:",
+                state
+            );
 
-        /*
-         * Verifier + State müssen den Redirect
-         * zu Spotify überleben.
-         */
-        sessionStorage.setItem(
-            this.CODE_VERIFIER_KEY,
-            codeVerifier
-        );
+            const params =
+                new URLSearchParams({
+                    client_id: this.clientId,
+                    response_type: "code",
+                    redirect_uri: this.redirectUri,
+                    scope: this.scopes.join(" "),
+                    state,
+                    code_challenge_method: "S256",
+                    code_challenge: codeChallenge
+                });
 
-        sessionStorage.setItem(
-            this.STATE_KEY,
-            state
-        );
+            window.location.assign(
+                `${this.authorizeUrl}?${params.toString()}`
+            );
 
+        } catch (error) {
 
-        const params = new URLSearchParams({
+            this._authorizing.set(false);
 
-            client_id: this.clientId,
+            this._error.set(
+                "Spotify-Anmeldung konnte nicht gestartet werden."
+            );
 
-            response_type: "code",
-
-            redirect_uri: this.redirectUri,
-
-            scope: this.scopes.join(" "),
-
-            state,
-
-            code_challenge_method: "S256",
-
-            code_challenge: codeChallenge
-        });
-
-
-        const url =
-            `${this.authorizeUrl}?${params.toString()}`;
-
-
-        /*
-         * Benutzer zu Spotify schicken
-         */
-        window.location.assign(url);
+            console.error(
+                "Spotify Login Error:",
+                error
+            );
+        }
     }
 
 
@@ -288,6 +294,7 @@ export class SpotifyAuthService implements OnDestroy {
             );
 
             this.cleanupPkce();
+            this.removeOAuthParametersFromUrl();
 
             return;
         }
@@ -311,6 +318,23 @@ export class SpotifyAuthService implements OnDestroy {
                 this.STATE_KEY
             );
 
+        console.log(
+            "[Spotify OAuth] receivedState:",
+            receivedState
+        );
+
+        console.log(
+            "[Spotify OAuth] expectedState:",
+            expectedState
+        );
+
+        console.log(
+            "[Spotify OAuth] codeVerifier vorhanden:",
+            !!sessionStorage.getItem(
+                this.CODE_VERIFIER_KEY
+            )
+        );
+
         // Callback wurde möglicherweise bereits erfolgreich verarbeitet.
         // Einen alten Authorization Code niemals erneut einlösen.
         if (!expectedState && this._accessToken()) {
@@ -327,11 +351,23 @@ export class SpotifyAuthService implements OnDestroy {
             !expectedState ||
             receivedState !== expectedState
         ) {
-            this._error.set(
-                "Ungültiger OAuth State."
+
+            console.error(
+                "[Spotify OAuth] State mismatch",
+                {
+                    receivedState,
+                    expectedState
+                }
             );
 
             this.cleanupPkce();
+            this.removeOAuthParametersFromUrl();
+
+            this.removeOAuthParametersFromUrl();
+
+            this._error.set(
+                "Ungültiger OAuth State. Bitte Anmeldung erneut starten."
+            );
 
             return;
         }
@@ -355,6 +391,7 @@ export class SpotifyAuthService implements OnDestroy {
             );
 
             this.cleanupPkce();
+            this.removeOAuthParametersFromUrl();
 
             return;
         }
@@ -539,6 +576,9 @@ export class SpotifyAuthService implements OnDestroy {
 
 
         this.refreshRequestSubscription
+            ?.unsubscribe();
+
+        this.tokenRequestSubscription
             ?.unsubscribe();
 
 

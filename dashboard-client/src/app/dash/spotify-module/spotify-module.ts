@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { LoginComponent } from "./login/login";
 import { SpotifyAuthService } from './auth/auth-service';
 import { SpotifyService } from './spotify.service';
@@ -16,8 +16,6 @@ export class SpotifyModule {
     spotify = inject(SpotifyService);
 
     printPlaybackState() {
-        const playbackState = this.spotify.playbackState();
-        this.spotify.loadPlaybackState();
-        console.log(playbackState);
+      console.log(this.spotify.playbackState());
     }
 }

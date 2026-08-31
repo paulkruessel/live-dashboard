@@ -1,8 +1,10 @@
+import { CopyrightType } from "../spotify-types";
+
 export class Copyright {
     private text: string;
-    private type: string;
+    private type: CopyrightType;
 
-    public constructor(text: string, type: string) {
+    public constructor(text: string, type: CopyrightType) {
         this.text = text;
         this.type = type;
     }
@@ -11,7 +13,7 @@ export class Copyright {
         return this.text;
     }
 
-    public getType(): string {
+    public getType(): CopyrightType {
         return this.type;
     }
 
@@ -19,7 +21,7 @@ export class Copyright {
         this.text = text;
     }
 
-    public setType(type: string) {
+    public setType(type: CopyrightType): void {
         this.type = type;
     }
 }

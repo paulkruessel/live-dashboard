@@ -3,28 +3,31 @@ import { Context } from "./context";
 import { Device } from "./device";
 import { EpisodeObject } from "./episode-object";
 import { TrackObject } from "./track-object";
+import { CurrentlyPlayingType, RepeatState } from "../spotify-types";
 
 export class SpotifyPlaybackState {
 
     private device: Device;
-    private repeatState: "track" | "context" | "off";
+    private repeatState: RepeatState;
     private shuffleState: boolean;
     private context: Context | null;
     private timestamp: number;
     private progressMs: number | null;
     private isPlaying: boolean;
+    private currentlyPlayingType: CurrentlyPlayingType;
     private item: TrackObject | EpisodeObject | null;
     private actions: Actions;
 
     constructor(
         device: Device,
-        repeatState: "track" | "context" | "off",
+        repeatState: RepeatState,
         shuffleState: boolean,
         context: Context | null,
         timestamp: number,
         progressMs: number | null,
         isPlaying: boolean,
         item: TrackObject | EpisodeObject | null,
+        currentlyPlayingType: CurrentlyPlayingType,
         actions: Actions
     ) {
         this.device = device;
@@ -34,6 +37,7 @@ export class SpotifyPlaybackState {
         this.timestamp = timestamp;
         this.progressMs = progressMs;
         this.isPlaying = isPlaying;
+        this.currentlyPlayingType = currentlyPlayingType;
         this.item = item;
         this.actions = actions;
     }
@@ -46,11 +50,11 @@ export class SpotifyPlaybackState {
         this.device = device;
     }
 
-    public getRepeatState(): "track" | "context" | "off" {
+    public getRepeatState(): RepeatState {
         return this.repeatState;
     }
 
-    public setRepeatState(repeatState: "track" | "context" | "off"): void {
+    public setRepeatState(repeatState: RepeatState): void {
         this.repeatState = repeatState;
     }
 
@@ -93,6 +97,9 @@ export class SpotifyPlaybackState {
     public setIsPlaying(isPlaying: boolean): void {
         this.isPlaying = isPlaying;
     }
+
+    public getCurrentlyPlayingType(): CurrentlyPlayingType { return this.currentlyPlayingType; }
+    public setCurrentlyPlayingType(value: CurrentlyPlayingType): void { this.currentlyPlayingType = value; }
 
     public getItem(): TrackObject | EpisodeObject | null {
         return this.item;

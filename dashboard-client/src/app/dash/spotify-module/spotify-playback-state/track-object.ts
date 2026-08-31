@@ -2,53 +2,58 @@ import { Album } from "./album";
 import { ExternalIds } from "./external-ids";
 import { ExternalUrls } from "./external-urls";
 import { Restrictions } from "./restrictions";
-import { SimplifiedArtist } from "./SimplifiedArtist";
+import { SimplifiedArtist } from "./simplified-artist";
+import { LinkedFrom } from "./linked-from";
+import { TrackObjectType } from "../spotify-types";
 
 export class TrackObject {
 
     private album: Album;
     private artists: SimplifiedArtist[];
-    private discNumber: Number;
-    private durationMs: Number;
+    private availableMarkets: string[];
+    private discNumber: number;
+    private durationMs: number;
     private explicit: boolean;
     private externalIds: ExternalIds;
     private externalUrls: ExternalUrls;
     private href: string;
     private id: string;
     private isPlayable: boolean | null;
-    private linkedFrom: Record<string, unknown> | null;
+    private linkedFrom: LinkedFrom | null;
     private name: string;
     private popularity: number;
     private previewUrl: string | null;
     private restrictions: Restrictions | null;
     private trackNumber: number;
-    private type: string;
+    private type: TrackObjectType;
     private uri: string;
     private isLocal: boolean;
 
     constructor(
         album: Album,
         artists: SimplifiedArtist[],
-        discNumber: Number,
-        durationMs: Number,
+        availableMarkets: string[],
+        discNumber: number,
+        durationMs: number,
         explicit: boolean,
         externalIds: ExternalIds,
         externalUrls: ExternalUrls,
         href: string,
         id: string,
         isPlayable: boolean | null,
-        linkedFrom: Record<string, unknown> | null,
+        linkedFrom: LinkedFrom | null,
         name: string,
         popularity: number,
         previewUrl: string | null,
         restrictions: Restrictions | null,
         trackNumber: number,
-        type: string,
+        type: TrackObjectType,
         uri: string,
         isLocal: boolean
     ) {
         this.album = album;
         this.artists = artists;
+        this.availableMarkets = availableMarkets;
         this.discNumber = discNumber;
         this.durationMs = durationMs;
         this.explicit = explicit;
@@ -84,19 +89,22 @@ export class TrackObject {
         this.artists = artists;
     }
 
-    public getDiscNumber(): Number {
+    public getAvailableMarkets(): string[] { return this.availableMarkets; }
+    public setAvailableMarkets(availableMarkets: string[]): void { this.availableMarkets = availableMarkets; }
+
+    public getDiscNumber(): number {
         return this.discNumber;
     }
 
-    public setDiscNumber(discNumber: Number): void {
+    public setDiscNumber(discNumber: number): void {
         this.discNumber = discNumber;
     }
 
-    public getDurationMs(): Number {
+    public getDurationMs(): number {
         return this.durationMs;
     }
 
-    public setDurationMs(durationMs: Number): void {
+    public setDurationMs(durationMs: number): void {
         this.durationMs = durationMs;
     }
 
@@ -148,11 +156,11 @@ export class TrackObject {
         this.isPlayable = isPlayable;
     }
 
-    public getLinkedFrom(): Record<string, unknown> | null {
+    public getLinkedFrom(): LinkedFrom | null {
         return this.linkedFrom;
     }
 
-    public setLinkedFrom(linkedFrom: Record<string, unknown> | null): void {
+    public setLinkedFrom(linkedFrom: LinkedFrom | null): void {
         this.linkedFrom = linkedFrom;
     }
 
@@ -196,11 +204,11 @@ export class TrackObject {
         this.trackNumber = trackNumber;
     }
 
-    public getType(): string {
+    public getType(): TrackObjectType {
         return this.type;
     }
 
-    public setType(type: string): void {
+    public setType(type: TrackObjectType): void {
         this.type = type;
     }
 

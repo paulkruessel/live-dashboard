@@ -1,1 +1,23 @@
-<p>login works!</p>
+@if (!auth.isAuthenticated()) {
+
+    <p-button label="Login to Spotify" [raised]="true" severity="success" (onClick)="login()" [disabled]="auth.authorizing()" />
+
+} @else {
+
+    <p>
+        Mit Spotify verbunden
+    </p>
+
+    <button (click)="logout()">
+        Abmelden
+    </button>
+
+}
+
+@if (auth.error()) {
+
+    <p>
+        {{ auth.error() }}
+    </p>
+
+}
