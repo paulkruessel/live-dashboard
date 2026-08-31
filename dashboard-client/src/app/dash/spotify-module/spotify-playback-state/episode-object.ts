@@ -25,7 +25,7 @@ export class EpisodeObject {
     private resumePoint: ResumePoint;
     private type: "episode";
     private uri: string;
-    private restrictions: Restrictions;
+    private restrictions: Restrictions | null;
     private show: Show;
 
     constructor(
@@ -48,7 +48,7 @@ export class EpisodeObject {
         resumePoint: ResumePoint,
         type: "episode",
         uri: string,
-        restrictions: Restrictions,
+        restrictions: Restrictions | null,
         show: Show
     ) {
         this.audioPreviewUrl = audioPreviewUrl;
@@ -228,11 +228,11 @@ export class EpisodeObject {
         this.uri = uri;
     }
 
-    public getRestrictions(): Restrictions {
+    public getRestrictions(): Restrictions | null {
         return this.restrictions;
     }
 
-    public setRestrictions(restrictions: Restrictions): void {
+    public setRestrictions(restrictions: Restrictions | null): void {
         this.restrictions = restrictions;
     }
 

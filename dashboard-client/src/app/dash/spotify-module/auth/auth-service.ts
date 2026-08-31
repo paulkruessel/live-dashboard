@@ -311,13 +311,22 @@ export class SpotifyAuthService implements OnDestroy {
                 this.STATE_KEY
             );
 
+        // Callback wurde möglicherweise bereits erfolgreich verarbeitet.
+        // Einen alten Authorization Code niemals erneut einlösen.
+        if (!expectedState && this._accessToken()) {
+
+            this.removeOAuthParametersFromUrl();
+
+            this.router.navigateByUrl("/");
+
+            return;
+        }
 
         if (
             !receivedState ||
             !expectedState ||
             receivedState !== expectedState
         ) {
-
             this._error.set(
                 "Ungültiger OAuth State."
             );
@@ -326,6 +335,7 @@ export class SpotifyAuthService implements OnDestroy {
 
             return;
         }
+        
 
 
         // =====================================================

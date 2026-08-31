@@ -1,5 +1,8 @@
 @if(!auth.isAuthenticated()) {
     <app-login />
 } @else {
-    Logged in to Spotify!
+    Press here to give out current playback state into console:
+    <div class="card flex justify-center">
+        <p-button label="Click!" [raised]="true" severity="success" (onClick)="printPlaybackState()" />
+    </div>
 }

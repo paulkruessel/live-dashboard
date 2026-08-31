@@ -15,7 +15,7 @@ export class Album {
     private name: string;
     private releaseDate: string;
     private releaseDatePrecision: string;
-    private restrictions: Restrictions;
+    private restrictions: Restrictions | null;
     private type: string;
     private uri: string;
     private artists: SimplifiedArtist[];
@@ -31,7 +31,7 @@ export class Album {
         name: string,
         releaseDate: string,
         releaseDatePrecision: string,
-        restrictions: Restrictions,
+        restrictions: Restrictions | null,
         type: string,
         uri: string,
         artists: SimplifiedArtist[]
@@ -132,11 +132,11 @@ export class Album {
         this.releaseDatePrecision = releaseDatePrecision;
     }
 
-    public getRestrictions(): Restrictions {
+    public getRestrictions(): Restrictions | null {
         return this.restrictions;
     }
 
-    public setRestrictions(restrictions: Restrictions): void {
+    public setRestrictions(restrictions: Restrictions | null): void {
         this.restrictions = restrictions;
     }
 

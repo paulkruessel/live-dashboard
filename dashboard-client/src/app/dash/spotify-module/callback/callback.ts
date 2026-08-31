@@ -2,30 +2,41 @@ import {
     Component,
     OnInit
 } from "@angular/core";
-import { SpotifyAuthService } from "../auth/auth-service";
 
-
+import {
+    SpotifyAuthService
+} from "../auth/auth-service";
 
 @Component({
     selector: "app-spotify-callback",
     standalone: true,
+
     template: `
-        <p>Spotify-Anmeldung wird abgeschlossen...</p>
+        @if (auth.error()) {
+
+            <h2>Spotify-Anmeldung fehlgeschlagen</h2>
+
+            <p>
+                {{ auth.error() }}
+            </p>
+
+        } @else {
+
+            <p>
+                Spotify-Anmeldung wird abgeschlossen...
+            </p>
+        }
     `
 })
-export class SpotifyCallbackComponent
-    implements OnInit {
+export class SpotifyCallbackComponent implements OnInit {
 
     constructor(
-        private readonly spotifyAuthService:
+        public readonly auth:
             SpotifyAuthService
     ) {}
 
-
     public ngOnInit(): void {
 
-        this.spotifyAuthService.handleCallback(
-            "/"
-        );
+        this.auth.handleCallback("/");
     }
 }

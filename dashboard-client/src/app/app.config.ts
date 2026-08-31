@@ -1,23 +1,44 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import {
+    ApplicationConfig,
+    provideBrowserGlobalErrorListeners
+} from "@angular/core";
 
-import { routes } from './app.routes';
-import { provideOptimus } from '@openng/optimus-ui/config';
-import Aura from '@openng/optimus-ui-themes/aura';
+import {
+    provideRouter
+} from "@angular/router";
+
+import {
+    provideHttpClient
+} from "@angular/common/http";
+
+import { routes } from "./app.routes";
+
+import {
+    provideOptimus
+} from "@openng/optimus-ui/config";
+
+import Aura from "@openng/optimus-ui-themes/aura";
 
 export const appConfig: ApplicationConfig = {
-  providers: [
-    provideBrowserGlobalErrorListeners(),
-    provideRouter(routes),
-    provideOptimus({
+
+    providers: [
+
+        provideBrowserGlobalErrorListeners(),
+
+        provideRouter(routes),
+
+        provideHttpClient(),
+
+        provideOptimus({
             theme: {
                 preset: Aura,
+
                 options: {
-                    prefix: 'p',
-                    darkModeSelector: 'system',
+                    prefix: "p",
+                    darkModeSelector: "system",
                     cssLayer: false
                 }
             }
-        }),
-  ],
+        })
+    ]
 };

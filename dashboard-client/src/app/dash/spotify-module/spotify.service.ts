@@ -1,5 +1,5 @@
 import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { computed, Injectable, signal } from "@angular/core";
+import { computed, effect, Injectable, signal } from "@angular/core";
 import { SpotifyPlaybackState } from "./spotify-playback-state/spotify-playback-state";
 import { catchError, EMPTY, interval, startWith, Subscription, switchMap } from "rxjs";
 import { Actions } from "./spotify-playback-state/actions";
@@ -24,8 +24,6 @@ import { SpotifyAuthService } from "./auth/auth-service";
 export class SpotifyService {
 
     private readonly apiUrl = "https://api.spotify.com/v1/me/player";
-
-    private readonly _accessToken = signal<string | null>(null);
 
     private readonly _playbackState = signal<SpotifyPlaybackState | null>(null)
 
@@ -60,16 +58,31 @@ export class SpotifyService {
     constructor(
         private readonly http: HttpClient,
         private readonly auth: SpotifyAuthService
-    ) {}
+    ) {
+        effect(() => {
 
-    public setAccessToken(token: string): void {
-        this._accessToken.set(token);
-    }
+            const authenticated =
+                this.auth.isAuthenticated();
 
-    public clearAccessToken(): void {
-        this._accessToken.set(null);
-        this.stopPolling();
-        this._playbackState.set(null);
+            if (authenticated) {
+
+                console.log(
+                    "Authenticated with Spotify, starting polling..."
+                );
+
+                this.startPolling();
+
+            } else {
+
+                console.log(
+                    "Not authenticated with Spotify, stopping polling..."
+                );
+
+                this.stopPolling();
+
+                this._playbackState.set(null);
+            }
+        });
     }
 
     public loadPlaybackState(): void {
@@ -122,59 +135,57 @@ export class SpotifyService {
 
         this.stopPolling();
 
-        this.playbackSubscription = interval(
-            intervalMs
-        ).pipe(
+        this.playbackSubscription = interval(intervalMs)
+            .pipe(
+                startWith(0),
 
-            startWith(0),
+                switchMap(() => {
 
-            switchMap(() => {
+                    const token = this.auth.accessToken();
 
-                const token = this._accessToken();
+                    if (!token) {
 
-                if (!token) {
-
-                    this._error.set(
-                        "Kein Spotify Access Token vorhanden."
-                    );
-
-                    return EMPTY;
-                }
-
-                const headers = new HttpHeaders({
-                    Authorization: `Bearer ${token}`
-                });
-
-                return this.http.get<any>(
-                    `${this.apiUrl}?additional_types=track,episode`,
-                    {
-                        headers
-                    }
-                ).pipe(
-
-                    catchError(error => {
-
-                        console.error(
-                            "Spotify Polling Fehler:",
-                            error
+                        this._error.set(
+                            "Kein Spotify Access Token vorhanden."
                         );
 
                         return EMPTY;
-                    })
-                );
-            })
-        ).subscribe(data => {
+                    }
 
-            if (!data) {
-                this._playbackState.set(null);
+                    const headers = new HttpHeaders({
+                        Authorization: `Bearer ${token}`
+                    });
 
-                return;
-            }
+                    return this.http.get<any>(
+                        `${this.apiUrl}?additional_types=track,episode`,
+                        {
+                            headers
+                        }
+                    ).pipe(
+                        catchError(error => {
 
-            const playbackState = this.mapPlaybackState(data);
+                            console.error(
+                                "Spotify Polling Fehler:",
+                                error
+                            );
 
-            this._playbackState.set(playbackState);
-        });
+                            return EMPTY;
+                        })
+                    );
+                })
+            )
+            .subscribe(data => {
+
+                if (!data) {
+                    this._playbackState.set(null);
+                    return;
+                }
+
+                const playbackState =
+                    this.mapPlaybackState(data);
+
+                this._playbackState.set(playbackState);
+            });
     }
 
     public stopPolling(): void {
@@ -477,7 +488,14 @@ export class SpotifyService {
         );
     }
 
-    private mapRestrictions(data: any): Restrictions {
+    private mapRestrictions(
+        data: any
+    ): Restrictions | null {
+
+        if (!data) {
+            return null;
+        }
+
         return new Restrictions(
             data.reason
         );
